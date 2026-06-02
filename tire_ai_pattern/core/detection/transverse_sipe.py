@@ -271,6 +271,11 @@ def _analyze_horizontal_lines(
         working_binary[:edge_margin_px, :] = 0
         working_binary[max(0, image_height - edge_margin_px):, :] = 0
 
+    wide_groove_min_width_px = max(max_width_px + 3, narrow_cluster_px + 3)
+    wide_clusters_by_column = _collect_wide_clusters_by_column(
+        binary=working_binary,
+        min_width_px=wide_groove_min_width_px,
+    )
     bridged_binary = _bridge_small_horizontal_gaps(working_binary, max_gap_px=5)
     max_tilt_horizontal_span = int(min_width_px / np.tan(np.radians(max_angle_deg)))
     horizontal_open_width = max(3, min(max_tilt_horizontal_span, min_segment_length_px // 2))
@@ -294,8 +299,6 @@ def _analyze_horizontal_lines(
             continue
 
         all_column_clusters: list[tuple[int, list[tuple[int, int]]]] = []
-        wide_groove_min_width_px = max(max_width_px + 3, narrow_cluster_px + 3)
-        wide_clusters_by_column: WideClusterMap = {}
         for column_index in range(left, left + bbox_width):
             component_rows = np.where(labels[top: top + bbox_height, column_index] == label_id)[0]
             if len(component_rows) == 0:
@@ -309,14 +312,6 @@ def _analyze_horizontal_lines(
             ]
             if narrow_clusters:
                 all_column_clusters.append((column_index, narrow_clusters))
-
-            wide_clusters = [
-                (start_row, end_row)
-                for start_row, end_row in column_clusters
-                if wide_groove_min_width_px <= (end_row - start_row + 1) <= image_height // 2
-            ]
-            if wide_clusters:
-                wide_clusters_by_column[column_index] = wide_clusters
 
         if not all_column_clusters:
             continue
@@ -362,6 +357,27 @@ def _split_rows_into_clusters(component_rows: np.ndarray, top_offset: int) -> li
     return row_clusters
 
 
+def _collect_wide_clusters_by_column(binary: np.ndarray, min_width_px: int) -> WideClusterMap:
+    image_height, image_width = binary.shape
+    max_width_px = image_height // 2
+    wide_clusters_by_column: WideClusterMap = {}
+
+    for column_index in range(image_width):
+        dark_rows = np.where(binary[:, column_index] > 0)[0]
+        if len(dark_rows) == 0:
+            continue
+
+        wide_clusters = [
+            (start_row, end_row)
+            for start_row, end_row in _split_rows_into_clusters(dark_rows, 0)
+            if min_width_px <= (end_row - start_row + 1) <= max_width_px
+        ]
+        if wide_clusters:
+            wide_clusters_by_column[column_index] = wide_clusters
+
+    return wide_clusters_by_column
+
+
 def _validate_segment(
     segment: TrackData,
     min_width_px: int,
@@ -395,35 +411,42 @@ def _is_connected_to_wide_transverse_groove(
     if not segment or not wide_clusters_by_column:
         return False
 
-    endpoints = (
-        (segment[0], -1),
-        (segment[-1], 1),
-    )
+    first_column, first_center_y, _first_width = segment[0]
+    last_column, last_center_y, _last_width = segment[-1]
+    segment_length_px = last_column - first_column + 1
+    required_connected_columns = min(min_connected_length_px, max(8, segment_length_px // 2))
+
+    slope = (last_center_y - first_center_y) / max(1, last_column - first_column)
+    endpoints = ((segment[0], -1), (segment[-1], 1))
+
     for (column_index, center_y, column_width), direction in endpoints:
         vertical_padding = max(2, int(round(column_width)))
-        connected_columns = 0
+        matching_columns = 0
         gap_columns = 0
+        has_seen_wide_cluster = False
+
         for distance in range(1, max_scan_columns + 1):
             neighbor_column = column_index + direction * distance
+            expected_center_y = center_y + slope * (neighbor_column - column_index)
             has_matching_wide_cluster = False
+
             for start_row, end_row in wide_clusters_by_column.get(neighbor_column, []):
-                if start_row - vertical_padding <= center_y <= end_row + vertical_padding:
+                if start_row - vertical_padding <= expected_center_y <= end_row + vertical_padding:
                     has_matching_wide_cluster = True
                     break
 
             if has_matching_wide_cluster:
-                connected_columns += 1
+                matching_columns += 1
+                has_seen_wide_cluster = True
                 gap_columns = 0
-                if connected_columns >= min_connected_length_px:
+                if matching_columns >= required_connected_columns:
                     return True
                 continue
 
-            if connected_columns == 0:
+            if not has_seen_wide_cluster:
                 gap_columns += 1
                 if gap_columns > max_initial_gap_columns:
                     break
-            else:
-                break
 
     return False
 
