@@ -11,6 +11,7 @@ from tire_ai_pattern.utils.logger import get_logger
 
 TrackData = list[tuple[int, float, float]]
 Segment = tuple[float, float, int, int]
+WideClusterMap = dict[int, list[tuple[int, int]]]
 
 logger = get_logger(__name__)
 
@@ -293,6 +294,8 @@ def _analyze_horizontal_lines(
             continue
 
         all_column_clusters: list[tuple[int, list[tuple[int, int]]]] = []
+        wide_groove_min_width_px = max(max_width_px + 3, narrow_cluster_px + 3)
+        wide_clusters_by_column: WideClusterMap = {}
         for column_index in range(left, left + bbox_width):
             component_rows = np.where(labels[top: top + bbox_height, column_index] == label_id)[0]
             if len(component_rows) == 0:
@@ -307,6 +310,14 @@ def _analyze_horizontal_lines(
             if narrow_clusters:
                 all_column_clusters.append((column_index, narrow_clusters))
 
+            wide_clusters = [
+                (start_row, end_row)
+                for start_row, end_row in column_clusters
+                if wide_groove_min_width_px <= (end_row - start_row + 1) <= image_height // 2
+            ]
+            if wide_clusters:
+                wide_clusters_by_column[column_index] = wide_clusters
+
         if not all_column_clusters:
             continue
 
@@ -320,6 +331,12 @@ def _analyze_horizontal_lines(
                     min_segment_length_px=min_segment_length_px,
                 )
                 if accepted_segment is None:
+                    continue
+                if _is_connected_to_wide_transverse_groove(
+                    segment,
+                    wide_clusters_by_column,
+                    min_connected_length_px=min_segment_length_px,
+                ):
                     continue
                 if not _has_clear_sipe_sides(binary, segment):
                     continue
@@ -366,6 +383,49 @@ def _validate_segment(
 
     center_y = float(np.mean([center_y for _column_index, center_y, _column_width in segment]))
     return center_y, mean_width, first_column, last_column
+
+
+def _is_connected_to_wide_transverse_groove(
+    segment: TrackData,
+    wide_clusters_by_column: WideClusterMap,
+    min_connected_length_px: int,
+    max_initial_gap_columns: int = 5,
+    max_scan_columns: int = 40,
+) -> bool:
+    if not segment or not wide_clusters_by_column:
+        return False
+
+    endpoints = (
+        (segment[0], -1),
+        (segment[-1], 1),
+    )
+    for (column_index, center_y, column_width), direction in endpoints:
+        vertical_padding = max(2, int(round(column_width)))
+        connected_columns = 0
+        gap_columns = 0
+        for distance in range(1, max_scan_columns + 1):
+            neighbor_column = column_index + direction * distance
+            has_matching_wide_cluster = False
+            for start_row, end_row in wide_clusters_by_column.get(neighbor_column, []):
+                if start_row - vertical_padding <= center_y <= end_row + vertical_padding:
+                    has_matching_wide_cluster = True
+                    break
+
+            if has_matching_wide_cluster:
+                connected_columns += 1
+                gap_columns = 0
+                if connected_columns >= min_connected_length_px:
+                    return True
+                continue
+
+            if connected_columns == 0:
+                gap_columns += 1
+                if gap_columns > max_initial_gap_columns:
+                    break
+            else:
+                break
+
+    return False
 
 
 def _has_clear_sipe_sides(binary: np.ndarray, segment: TrackData) -> bool:

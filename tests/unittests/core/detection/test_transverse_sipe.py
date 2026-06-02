@@ -226,6 +226,25 @@ class TestDetectTransverseSipes:
         }
         assert rst == expect_rst
 
+    def test_thin_line_connected_to_wide_transverse_groove_is_not_counted_as_sipe(self):
+        image = np.full((IMAGE_SIZE, IMAGE_SIZE, 3), 255, dtype=np.uint8)
+        image[60:69, 12:65] = 0
+        image[64:65, 64:116] = 0
+
+        sipe_count, sipe_positions_px, sipe_widths_px, _line_mask, _debug_image = detect_transverse_sipes(image)
+
+        rst = {
+            "sipe_count": sipe_count,
+            "sipe_positions_px": sipe_positions_px,
+            "sipe_widths_px": sipe_widths_px,
+        }
+        expect_rst = {
+            "sipe_count": 0,
+            "sipe_positions_px": [],
+            "sipe_widths_px": [],
+        }
+        assert rst == expect_rst
+
     def test_vertical_line_is_not_counted_as_transverse_sipe(self):
         image = make_small_image_with_vertical_line()
 
