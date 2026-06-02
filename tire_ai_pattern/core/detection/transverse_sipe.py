@@ -339,6 +339,12 @@ def _analyze_horizontal_lines(
                     min_segment_length_px=min_segment_length_px,
                 ):
                     continue
+                if _is_connected_to_aligned_transverse_tail(
+                    segment,
+                    working_binary,
+                    max_width_px=max_width_px,
+                ):
+                    continue
                 if not _has_clear_sipe_sides(binary, segment):
                     continue
 
@@ -480,6 +486,62 @@ def _is_short_saturated_width_fragment(
     mean_width = float(column_widths.mean())
     saturated_ratio = float(np.mean(column_widths >= max_width_px - 1))
     return mean_width >= max_width_px - 0.25 and saturated_ratio >= 0.75
+
+
+def _is_connected_to_aligned_transverse_tail(
+    segment: TrackData,
+    binary: np.ndarray,
+    max_width_px: int,
+    max_initial_gap_columns: int = 2,
+    max_scan_columns: int = 45,
+) -> bool:
+    if not segment:
+        return False
+
+    first_column, first_center_y, _first_width = segment[0]
+    last_column, last_center_y, _last_width = segment[-1]
+    segment_length_px = last_column - first_column + 1
+    required_continuation_columns = max(8, min(12, segment_length_px // 6))
+    slope = (last_center_y - first_center_y) / max(1, last_column - first_column)
+
+    endpoints = ((segment[0], -1), (segment[-1], 1))
+    for (column_index, center_y, column_width), direction in endpoints:
+        vertical_padding = max(2, int(round(column_width)))
+        initial_gap_columns = 0
+        consecutive_matching_columns = 0
+        has_seen_aligned_tail = False
+
+        for distance in range(1, max_scan_columns + 1):
+            neighbor_column = column_index + direction * distance
+            if neighbor_column < 0 or neighbor_column >= binary.shape[1]:
+                break
+
+            expected_center_y = center_y + slope * (neighbor_column - column_index)
+            dark_rows = np.where(binary[:, neighbor_column] > 0)[0]
+            if len(dark_rows) == 0:
+                has_matching_cluster = False
+            else:
+                has_matching_cluster = any(
+                    (end_row - start_row + 1) <= max_width_px
+                    and start_row - vertical_padding <= expected_center_y <= end_row + vertical_padding
+                    for start_row, end_row in _split_rows_into_clusters(dark_rows, 0)
+                )
+
+            if has_matching_cluster:
+                has_seen_aligned_tail = True
+                initial_gap_columns = 0
+                consecutive_matching_columns += 1
+                if consecutive_matching_columns >= required_continuation_columns:
+                    return True
+                continue
+
+            consecutive_matching_columns = 0
+            if not has_seen_aligned_tail:
+                initial_gap_columns += 1
+                if initial_gap_columns > max_initial_gap_columns:
+                    break
+
+    return False
 
 
 def _has_clear_sipe_sides(binary: np.ndarray, segment: TrackData) -> bool:
