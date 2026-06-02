@@ -333,6 +333,12 @@ def _analyze_horizontal_lines(
                     min_connected_length_px=min_segment_length_px,
                 ):
                     continue
+                if _is_short_saturated_width_fragment(
+                    segment,
+                    max_width_px=max_width_px,
+                    min_segment_length_px=min_segment_length_px,
+                ):
+                    continue
                 if not _has_clear_sipe_sides(binary, segment):
                     continue
 
@@ -414,7 +420,7 @@ def _is_connected_to_wide_transverse_groove(
     first_column, first_center_y, _first_width = segment[0]
     last_column, last_center_y, _last_width = segment[-1]
     segment_length_px = last_column - first_column + 1
-    required_connected_columns = min(min_connected_length_px, max(8, segment_length_px // 2))
+    required_connected_columns = min(min_connected_length_px, max(6, segment_length_px // 3))
 
     slope = (last_center_y - first_center_y) / max(1, last_column - first_column)
     endpoints = ((segment[0], -1), (segment[-1], 1))
@@ -449,6 +455,31 @@ def _is_connected_to_wide_transverse_groove(
                     break
 
     return False
+
+
+def _is_short_saturated_width_fragment(
+    segment: TrackData,
+    max_width_px: int,
+    min_segment_length_px: int,
+    max_fragment_angle_deg: float = 10.0,
+) -> bool:
+    if not segment:
+        return False
+
+    first_column, first_center_y, _first_width = segment[0]
+    last_column, last_center_y, _last_width = segment[-1]
+    segment_length_px = last_column - first_column + 1
+    if segment_length_px > min_segment_length_px * 3:
+        return False
+
+    slope = (last_center_y - first_center_y) / max(1, last_column - first_column)
+    if abs(np.degrees(np.arctan(slope))) > max_fragment_angle_deg:
+        return False
+
+    column_widths = np.array([column_width for _column_index, _center_y, column_width in segment], dtype=np.float64)
+    mean_width = float(column_widths.mean())
+    saturated_ratio = float(np.mean(column_widths >= max_width_px - 1))
+    return mean_width >= max_width_px - 0.25 and saturated_ratio >= 0.75
 
 
 def _has_clear_sipe_sides(binary: np.ndarray, segment: TrackData) -> bool:

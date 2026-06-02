@@ -18,10 +18,10 @@ DEBUG_OUTPUT_ROOT = RESULT_ROOT / "debug"
 DATASET_EXPECTATIONS: dict[Path, tuple[int, list[float]]] = {
     Path("center_inf/center_one_sipe_angular_lug.png"): (1, [26.3]),
     Path("center_inf/center_no_sipe_v_groove.png"): (0, []),
-    Path("center_inf/center_two_sipes_upper_lug.png"): (2, [31.6, 41.8]),
+    Path("center_inf/center_no_sipe_upper_groove_tail.png"): (0, []),
     Path("center_inf/center_one_sipe_with_curved_groove_tail.png"): (1, [54.9]),
     Path("center_inf/center_one_sipe_with_oblique_groove_tail.png"): (1, [111.2]),
-    Path("side_inf/side_two_sipes_between_lugs.png"): (2, [15.0, 56.5]),
+    Path("side_inf/side_one_sipe_between_lugs_with_top_groove_tip.png"): (1, [56.5]),
     Path("side_inf/side_one_sipe_notched_lug.png"): (1, [20.2]),
     Path("side_inf/side_two_sipes_with_zigzag_groove_tail.png"): (2, [29.3, 110.5]),
 }
