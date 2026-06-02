@@ -94,6 +94,11 @@ def run_pipeline4_to_pipeline1_case(
                     if ranked_struct.big_image is not None and ranked_struct.big_image.evaluation is not None
                     else None
                 ),
+                 "compliance": (
+                    _extract_compliance_score(ranked_struct.big_image)
+                    if ranked_struct.big_image is not None
+                    else None
+                ),
                 "big_image_path": str(big_image_path),
             }
         )
@@ -323,6 +328,14 @@ def _derive_decoration_widths(
         return [left, right]
     return [0, 0]
 
+def _extract_compliance_score(big_image: BigImage) -> int | None:
+    """从 BigImage 中提取 compliance 分数"""
+    if big_image.scores is None:
+        return None
+    for score in big_image.scores:
+        if hasattr(score, 'compliance'):
+            return score.compliance
+    return None
 
 if __name__ == "__main__":
     result = run_pipeline4_to_pipeline1_case()
