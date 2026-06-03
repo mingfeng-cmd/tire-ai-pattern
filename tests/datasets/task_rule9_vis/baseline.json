@@ -1,0 +1,132 @@
+{
+  "cases": [
+    {
+      "image_path": "center_inf/center_no_sipe_v_groove.png",
+      "debug_image_path": "debug_baseline/center/center_no_sipe_v_groove_debug.png",
+      "region": "center",
+      "feature": {
+        "vis_names": null,
+        "vis_images": null,
+        "num_transverse_sipes_rib1_5": 0,
+        "num_transverse_sipes_rib2_4": 0,
+        "is_count_valid": true,
+        "region": "center"
+      },
+      "score": {
+        "score": 4
+      }
+    },
+    {
+      "image_path": "center_inf/center_one_sipe_angular_lug.png",
+      "debug_image_path": "debug_baseline/center/center_one_sipe_angular_lug_debug.png",
+      "region": "center",
+      "feature": {
+        "vis_names": null,
+        "vis_images": null,
+        "num_transverse_sipes_rib1_5": 0,
+        "num_transverse_sipes_rib2_4": 1,
+        "is_count_valid": true,
+        "region": "center"
+      },
+      "score": {
+        "score": 4
+      }
+    },
+    {
+      "image_path": "center_inf/center_four_sipes_exceed_limit.png",
+      "debug_image_path": "debug_baseline/center/center_four_sipes_exceed_limit_debug.png",
+      "region": "center",
+      "feature": {
+        "vis_names": null,
+        "vis_images": null,
+        "num_transverse_sipes_rib1_5": 0,
+        "num_transverse_sipes_rib2_4": 4,
+        "is_count_valid": false,
+        "region": "center"
+      },
+      "score": {
+        "score": 0
+      }
+    },
+    {
+      "image_path": "center_inf/center_five_sipes_exceed_limit.png",
+      "debug_image_path": "debug_baseline/center/center_five_sipes_exceed_limit_debug.png",
+      "region": "center",
+      "feature": {
+        "vis_names": null,
+        "vis_images": null,
+        "num_transverse_sipes_rib1_5": 0,
+        "num_transverse_sipes_rib2_4": 5,
+        "is_count_valid": false,
+        "region": "center"
+      },
+      "score": {
+        "score": 0
+      }
+    },
+    {
+      "image_path": "center_inf/center_seven_sipes_exceed_limit.png",
+      "debug_image_path": "debug_baseline/center/center_seven_sipes_exceed_limit_debug.png",
+      "region": "center",
+      "feature": {
+        "vis_names": null,
+        "vis_images": null,
+        "num_transverse_sipes_rib1_5": 0,
+        "num_transverse_sipes_rib2_4": 7,
+        "is_count_valid": false,
+        "region": "center"
+      },
+      "score": {
+        "score": 0
+      }
+    },
+    {
+      "image_path": "side_inf/side_one_sipe_notched_lug.png",
+      "debug_image_path": "debug_baseline/side/side_one_sipe_notched_lug_debug.png",
+      "region": "side",
+      "feature": {
+        "vis_names": null,
+        "vis_images": null,
+        "num_transverse_sipes_rib1_5": 1,
+        "num_transverse_sipes_rib2_4": 0,
+        "is_count_valid": true,
+        "region": "side"
+      },
+      "score": {
+        "score": 4
+      }
+    },
+    {
+      "image_path": "side_inf/side_two_sipes_with_zigzag_groove_tail.png",
+      "debug_image_path": "debug_baseline/side/side_two_sipes_with_zigzag_groove_tail_debug.png",
+      "region": "side",
+      "feature": {
+        "vis_names": null,
+        "vis_images": null,
+        "num_transverse_sipes_rib1_5": 2,
+        "num_transverse_sipes_rib2_4": 0,
+        "is_count_valid": true,
+        "region": "side"
+      },
+      "score": {
+        "score": 4
+      }
+    },
+    {
+      "image_path": "side_inf/side_three_sipes_exceed_limit.png",
+      "debug_image_path": "debug_baseline/side/side_three_sipes_exceed_limit_debug.png",
+      "region": "side",
+      "feature": {
+        "vis_names": null,
+        "vis_images": null,
+        "num_transverse_sipes_rib1_5": 3,
+        "num_transverse_sipes_rib2_4": 0,
+        "is_count_valid": false,
+        "region": "side"
+      },
+      "score": {
+        "score": 0
+      }
+    }
+  ]
+}

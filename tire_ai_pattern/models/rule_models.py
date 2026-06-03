@@ -371,19 +371,19 @@ class Rule8Score(BaseRuleScore):
 
 
 # ============================================================
-# 第七部分：Rule9-10 横向钢片（未实现）
+# 第七部分：Rule9-10 横向钢片
 # ============================================================
 
 class Rule9Config(BaseRuleConfig):
-    """Rule9：横向钢片数量约束（未实现）"""
+    """Rule9：横向钢片数量约束"""
     description: str = "横向钢片数量约束"
-    max_score: int = 0
+    max_score: int = 4
     rule_type: RuleTypeEnum = RuleTypeEnum.SMALL_IMAGE
-    transverse_sipe_width: float = Field(description="横向钢片宽度(像素)")
-    min_sipe_count_rib1_5: int = Field(description="RIB1/5钢片数量下限")
-    max_sipe_count_rib1_5: int = Field(description="RIB1/5钢片数量上限")
-    min_sipe_count_rib2_4: int = Field(description="RIB2/4钢片数量下限")
-    max_sipe_count_rib2_4: int = Field(description="RIB2/4钢片数量上限")
+    transverse_sipe_width: float = Field(default=0.6, gt=0, description="横向钢片宽度(像素)")
+    min_sipe_count_rib1_5: int = Field(default=0, ge=0, description="RIB1/5钢片数量下限")
+    max_sipe_count_rib1_5: int = Field(default=2, ge=0, description="RIB1/5钢片数量上限")
+    min_sipe_count_rib2_4: int = Field(default=0, ge=0, description="RIB2/4钢片数量下限")
+    max_sipe_count_rib2_4: int = Field(default=3, ge=0, description="RIB2/4钢片数量上限")
 
 
 class Rule10Config(BaseRuleConfig):
@@ -398,10 +398,11 @@ class Rule10Config(BaseRuleConfig):
 
 @register_rule_feature
 class Rule9Feature(BaseRuleFeature):
-    """Rule9特征：横向钢片数量，未实现"""
-    num_transverse_sipes_rib1_5: int = Field(description="RIB1/5横向钢片数量")
-    num_transverse_sipes_rib2_4: int = Field(description="RIB2/4横向钢片数量")
+    """Rule9特征：横向钢片数量"""
+    num_transverse_sipes_rib1_5: int = Field(ge=0, description="RIB1/5横向钢片数量")
+    num_transverse_sipes_rib2_4: int = Field(ge=0, description="RIB2/4横向钢片数量")
     is_count_valid: bool = Field(description="数量是否合规")
+    region: RegionEnum = Field(description="小图区域：center/side")
 
 
 @register_rule_feature
@@ -415,7 +416,7 @@ class Rule10Feature(BaseRuleFeature):
 
 @register_rule_score
 class Rule9Score(BaseRuleScore):
-    """Rule9（横向钢片数量）评分，未实现"""
+    """Rule9（横向钢片数量）评分"""
     pass
 
 
