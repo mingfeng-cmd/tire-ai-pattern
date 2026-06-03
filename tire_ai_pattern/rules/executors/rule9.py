@@ -49,19 +49,19 @@ class Rule9Executor(RuleExecutor):
             is_debug=is_debug,
         )
 
-        num_transverse_sipes_rib1_5 = sipe_count if region == RegionEnum.SIDE else 0
-        num_transverse_sipes_rib2_4 = sipe_count if region == RegionEnum.CENTER else 0
+        num_transverse_sipes_side = sipe_count if region == RegionEnum.SIDE else 0
+        num_transverse_sipes_center = sipe_count if region == RegionEnum.CENTER else 0
         is_count_valid = self._is_count_valid(
             config=config,
             region=region,
-            num_transverse_sipes_rib1_5=num_transverse_sipes_rib1_5,
-            num_transverse_sipes_rib2_4=num_transverse_sipes_rib2_4,
+            num_transverse_sipes_side=num_transverse_sipes_side,
+            num_transverse_sipes_center=num_transverse_sipes_center,
             function_name=FEATURE_FUNCTION,
         )
 
         feature_data = {
-            "num_transverse_sipes_rib1_5": num_transverse_sipes_rib1_5,
-            "num_transverse_sipes_rib2_4": num_transverse_sipes_rib2_4,
+            "num_transverse_sipes_side": num_transverse_sipes_side,
+            "num_transverse_sipes_center": num_transverse_sipes_center,
             "is_count_valid": is_count_valid,
             "region": region,
         }
@@ -81,13 +81,13 @@ class Rule9Executor(RuleExecutor):
         if not isinstance(feature, Rule9Feature):
             raise InputTypeError(SCORE_FUNCTION, "feature", "Rule9Feature", type(feature).__name__)
 
-        self._validate_count("feature.num_transverse_sipes_rib1_5", feature.num_transverse_sipes_rib1_5)
-        self._validate_count("feature.num_transverse_sipes_rib2_4", feature.num_transverse_sipes_rib2_4)
+        self._validate_count("feature.num_transverse_sipes_side", feature.num_transverse_sipes_side)
+        self._validate_count("feature.num_transverse_sipes_center", feature.num_transverse_sipes_center)
         is_count_valid = self._is_count_valid(
             config=config,
             region=feature.region,
-            num_transverse_sipes_rib1_5=feature.num_transverse_sipes_rib1_5,
-            num_transverse_sipes_rib2_4=feature.num_transverse_sipes_rib2_4,
+            num_transverse_sipes_side=feature.num_transverse_sipes_side,
+            num_transverse_sipes_center=feature.num_transverse_sipes_center,
             function_name=SCORE_FUNCTION,
         )
 
@@ -98,20 +98,20 @@ class Rule9Executor(RuleExecutor):
     def _is_count_valid(
         config: Rule9Config,
         region: RegionEnum,
-        num_transverse_sipes_rib1_5: int,
-        num_transverse_sipes_rib2_4: int,
+        num_transverse_sipes_side: int,
+        num_transverse_sipes_center: int,
         function_name: str,
     ) -> bool:
         if region == RegionEnum.SIDE:
-            min_count = config.min_sipe_count_rib1_5
-            max_count = config.max_sipe_count_rib1_5
-            count = num_transverse_sipes_rib1_5
-            min_field_name = "config.min_sipe_count_rib1_5"
+            min_count = config.min_sipe_count_side
+            max_count = config.max_sipe_count_side
+            count = num_transverse_sipes_side
+            min_field_name = "config.min_sipe_count_side"
         elif region == RegionEnum.CENTER:
-            min_count = config.min_sipe_count_rib2_4
-            max_count = config.max_sipe_count_rib2_4
-            count = num_transverse_sipes_rib2_4
-            min_field_name = "config.min_sipe_count_rib2_4"
+            min_count = config.min_sipe_count_center
+            max_count = config.max_sipe_count_center
+            count = num_transverse_sipes_center
+            min_field_name = "config.min_sipe_count_center"
         else:
             raise InputDataError(function_name, "feature.region", "must be center or side", region)
 

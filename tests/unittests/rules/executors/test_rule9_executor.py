@@ -48,18 +48,18 @@ def make_rule9_config(
     *,
     max_score: int = 4,
     transverse_sipe_width: float = 0.6,
-    min_sipe_count_rib1_5: int = 0,
-    max_sipe_count_rib1_5: int = 2,
-    min_sipe_count_rib2_4: int = 0,
-    max_sipe_count_rib2_4: int = 3,
+    min_sipe_count_side: int = 0,
+    max_sipe_count_side: int = 2,
+    min_sipe_count_center: int = 0,
+    max_sipe_count_center: int = 3,
 ) -> Rule9Config:
     return Rule9Config(
         max_score=max_score,
         transverse_sipe_width=transverse_sipe_width,
-        min_sipe_count_rib1_5=min_sipe_count_rib1_5,
-        max_sipe_count_rib1_5=max_sipe_count_rib1_5,
-        min_sipe_count_rib2_4=min_sipe_count_rib2_4,
-        max_sipe_count_rib2_4=max_sipe_count_rib2_4,
+        min_sipe_count_side=min_sipe_count_side,
+        max_sipe_count_side=max_sipe_count_side,
+        min_sipe_count_center=min_sipe_count_center,
+        max_sipe_count_center=max_sipe_count_center,
     )
 
 
@@ -143,8 +143,8 @@ def test_baseline_includes_all_rule9_debug_golden_images():
     assert rst == expect_rst
 
 
-def test_exec_feature_converts_center_detector_result_to_rib2_4_feature(monkeypatch):
-    """Rule9 center 小图应把横向钢片数量映射到 RIB2/3/4 字段。"""
+def test_exec_feature_converts_center_detector_result_to_center_feature(monkeypatch):
+    """Rule9 center 小图应把横向钢片数量映射到 center 字段。"""
     decoded_image = np.full((IMAGE_SIZE, IMAGE_SIZE, 3), 255, dtype=np.uint8)
     calls = {"base64": [], "detector": []}
 
@@ -167,8 +167,8 @@ def test_exec_feature_converts_center_detector_result_to_rib2_4_feature(monkeypa
     }
     expect_rst = {
         "feature": Rule9Feature(
-            num_transverse_sipes_rib1_5=0,
-            num_transverse_sipes_rib2_4=2,
+            num_transverse_sipes_side=0,
+            num_transverse_sipes_center=2,
             is_count_valid=True,
             region=RegionEnum.CENTER,
         ),
@@ -186,8 +186,8 @@ def test_exec_feature_converts_center_detector_result_to_rib2_4_feature(monkeypa
     assert rst == expect_rst
 
 
-def test_exec_feature_converts_side_detector_result_to_rib1_5_feature(monkeypatch):
-    """Rule9 side 小图应把横向钢片数量映射到 RIB1/5 字段。"""
+def test_exec_feature_converts_side_detector_result_to_side_feature(monkeypatch):
+    """Rule9 side 小图应把横向钢片数量映射到 side 字段。"""
     decoded_image = np.full((40, 80, 3), 255, dtype=np.uint8)
     calls = {"base64": [], "detector": []}
 
@@ -210,8 +210,8 @@ def test_exec_feature_converts_side_detector_result_to_rib1_5_feature(monkeypatc
     }
     expect_rst = {
         "feature": Rule9Feature(
-            num_transverse_sipes_rib1_5=1,
-            num_transverse_sipes_rib2_4=0,
+            num_transverse_sipes_side=1,
+            num_transverse_sipes_center=0,
             is_count_valid=True,
             region=RegionEnum.SIDE,
         ),
@@ -249,7 +249,7 @@ def test_exec_feature_passes_debug_and_returns_visualization(monkeypatch):
 
     rst = {
         "feature_fields": {
-            "num_transverse_sipes_rib2_4": feature.num_transverse_sipes_rib2_4,
+            "num_transverse_sipes_center": feature.num_transverse_sipes_center,
             "vis_names": feature.vis_names,
             "vis_image_prefix": feature.vis_images[0].split(",", 1)[0] if feature.vis_images else None,
         },
@@ -257,7 +257,7 @@ def test_exec_feature_passes_debug_and_returns_visualization(monkeypatch):
     }
     expect_rst = {
         "feature_fields": {
-            "num_transverse_sipes_rib2_4": 1,
+            "num_transverse_sipes_center": 1,
             "vis_names": ["rule9_transverse_sipes.png"],
             "vis_image_prefix": "data:image/png;base64",
         },
@@ -334,7 +334,7 @@ def test_exec_feature_debug_vis_matches_rule9_golden(baseline_case: dict):
 
 
 @pytest.mark.parametrize(
-    ("region", "rib1_5_count", "rib2_4_count", "expected_score"),
+    ("region", "side_count", "center_count", "expected_score"),
     [
         (RegionEnum.SIDE, 0, 0, 4),
         (RegionEnum.SIDE, 2, 0, 4),
@@ -346,16 +346,16 @@ def test_exec_feature_debug_vis_matches_rule9_golden(baseline_case: dict):
 )
 def test_exec_score_uses_region_specific_count_limit(
     region: RegionEnum,
-    rib1_5_count: int,
-    rib2_4_count: int,
+    side_count: int,
+    center_count: int,
     expected_score: int,
 ):
     """Rule9 评分应按 side/center 选择不同数量上限。"""
     score = Rule9Executor().exec_score(
         make_rule9_config(),
         Rule9Feature(
-            num_transverse_sipes_rib1_5=rib1_5_count,
-            num_transverse_sipes_rib2_4=rib2_4_count,
+            num_transverse_sipes_side=side_count,
+            num_transverse_sipes_center=center_count,
             is_count_valid=expected_score > 0,
             region=region,
         ),
@@ -393,8 +393,8 @@ def test_exec_score_rejects_wrong_feature_type():
 def test_exec_score_rejects_invalid_feature_region():
     """绕过模型校验构造的非法 region 应在评分入口被拒绝。"""
     feature = Rule9Feature.model_construct(
-        num_transverse_sipes_rib1_5=1,
-        num_transverse_sipes_rib2_4=0,
+        num_transverse_sipes_side=1,
+        num_transverse_sipes_center=0,
         is_count_valid=True,
         region=None,
     )
@@ -406,25 +406,25 @@ def test_exec_score_rejects_invalid_feature_region():
 def test_exec_score_rejects_negative_feature_count():
     """绕过模型校验构造的非法数量应在评分入口被拒绝。"""
     feature = Rule9Feature.model_construct(
-        num_transverse_sipes_rib1_5=-1,
-        num_transverse_sipes_rib2_4=0,
+        num_transverse_sipes_side=-1,
+        num_transverse_sipes_center=0,
         is_count_valid=False,
         region=RegionEnum.SIDE,
     )
 
-    with pytest.raises(InputDataError, match="num_transverse_sipes_rib1_5"):
+    with pytest.raises(InputDataError, match="num_transverse_sipes_side"):
         Rule9Executor().exec_score(make_rule9_config(), feature)
 
 
 def test_exec_score_rejects_invalid_config_limit():
     """Rule9 配置中的数量下限不能大于上限。"""
-    config = make_rule9_config(min_sipe_count_rib1_5=3, max_sipe_count_rib1_5=2)
+    config = make_rule9_config(min_sipe_count_side=3, max_sipe_count_side=2)
     feature = Rule9Feature(
-        num_transverse_sipes_rib1_5=2,
-        num_transverse_sipes_rib2_4=0,
+        num_transverse_sipes_side=2,
+        num_transverse_sipes_center=0,
         is_count_valid=True,
         region=RegionEnum.SIDE,
     )
 
-    with pytest.raises(InputDataError, match="min_sipe_count_rib1_5"):
+    with pytest.raises(InputDataError, match="min_sipe_count_side"):
         Rule9Executor().exec_score(config, feature)
