@@ -380,10 +380,10 @@ class Rule9Config(BaseRuleConfig):
     max_score: int = 4
     rule_type: RuleTypeEnum = RuleTypeEnum.SMALL_IMAGE
     transverse_sipe_width: float = Field(default=0.6, gt=0, description="横向钢片宽度(像素)")
-    min_sipe_count_side: int = Field(default=0, ge=0, description="side区域(RIB1/5)钢片数量下限")
-    max_sipe_count_side: int = Field(default=2, ge=0, description="side区域(RIB1/5)钢片数量上限")
-    min_sipe_count_center: int = Field(default=0, ge=0, description="center区域(中心rib组)钢片数量下限")
-    max_sipe_count_center: int = Field(default=3, ge=0, description="center区域(中心rib组)钢片数量上限")
+    min_sipe_count_side: int = Field(default=0, ge=0, description="side区域钢片数量下限")
+    max_sipe_count_side: int = Field(default=2, ge=0, description="side区域钢片数量上限")
+    min_sipe_count_center: int = Field(default=0, ge=0, description="center区域钢片数量下限")
+    max_sipe_count_center: int = Field(default=3, ge=0, description="center区域钢片数量上限")
 
 
 class Rule10Config(BaseRuleConfig):
@@ -399,8 +399,8 @@ class Rule10Config(BaseRuleConfig):
 @register_rule_feature
 class Rule9Feature(BaseRuleFeature):
     """Rule9特征：横向钢片数量"""
-    num_transverse_sipes_side: int = Field(ge=0, description="side区域(RIB1/5)横向钢片数量")
-    num_transverse_sipes_center: int = Field(ge=0, description="center区域(中心rib组)横向钢片数量")
+    num_transverse_sipes_side: int = Field(ge=0, description="side区域横向钢片数量")
+    num_transverse_sipes_center: int = Field(ge=0, description="center区域横向钢片数量")
     is_count_valid: bool = Field(description="数量是否合规")
     region: RegionEnum = Field(description="小图区域：center/side")
 

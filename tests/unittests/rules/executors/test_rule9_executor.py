@@ -143,6 +143,35 @@ def test_baseline_includes_all_rule9_debug_golden_images():
     assert rst == expect_rst
 
 
+def test_rule9_model_descriptions_use_region_terms_without_rib_aliases():
+    """Rule9 模型字段描述应只使用 side/center 区域口径。"""
+    descriptions = {
+        "min_sipe_count_side": Rule9Config.model_fields["min_sipe_count_side"].description,
+        "max_sipe_count_side": Rule9Config.model_fields["max_sipe_count_side"].description,
+        "min_sipe_count_center": Rule9Config.model_fields["min_sipe_count_center"].description,
+        "max_sipe_count_center": Rule9Config.model_fields["max_sipe_count_center"].description,
+        "num_transverse_sipes_side": Rule9Feature.model_fields["num_transverse_sipes_side"].description,
+        "num_transverse_sipes_center": Rule9Feature.model_fields["num_transverse_sipes_center"].description,
+    }
+
+    rst = {
+        "descriptions": descriptions,
+        "contains_rib_alias": any("rib" in description.lower() for description in descriptions.values()),
+    }
+    expect_rst = {
+        "descriptions": {
+            "min_sipe_count_side": "side区域钢片数量下限",
+            "max_sipe_count_side": "side区域钢片数量上限",
+            "min_sipe_count_center": "center区域钢片数量下限",
+            "max_sipe_count_center": "center区域钢片数量上限",
+            "num_transverse_sipes_side": "side区域横向钢片数量",
+            "num_transverse_sipes_center": "center区域横向钢片数量",
+        },
+        "contains_rib_alias": False,
+    }
+    assert rst == expect_rst
+
+
 def test_exec_feature_converts_center_detector_result_to_center_feature(monkeypatch):
     """Rule9 center 小图应把横向钢片数量映射到 center 字段。"""
     decoded_image = np.full((IMAGE_SIZE, IMAGE_SIZE, 3), 255, dtype=np.uint8)
@@ -373,7 +402,7 @@ def test_exec_feature_rejects_non_small_image():
 
 
 def test_exec_feature_rejects_missing_region():
-    """Rule9 选择 RIB 组需要 center/side 区域信息。"""
+    """Rule9 选择数量阈值需要 center/side 区域信息。"""
     with pytest.raises(InputDataError, match="image.biz.region"):
         Rule9Executor().exec_feature(make_small_image(None), make_rule9_config())
 
