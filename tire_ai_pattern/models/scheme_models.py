@@ -343,6 +343,23 @@ class Continuity3(StitchingTemplate):
         RibTemplate(rib_name="rib4", operation_template=(RibOperation.NONE,), source_type=SourceTypeEnum.INHERIT, inherit_from="rib4"),
     ]
 
+
+@register_stitching_template
+class Continuity4(StitchingTemplate):
+    """4个rib无操作，不修改对称性方案"""
+
+    name: ContinuityModeName = ContinuityModeName.CONTINUITY_4
+    description: str = "4个rib无操作，不修改对称性方案"
+    rib_number: int = 4
+    mode: str = "continuity"
+    matching_rule_names: Tuple[str, ...] = tuple()
+    rib_template_list: List[RibTemplate] = [
+        RibTemplate(rib_name="rib1", operation_template=(RibOperation.NONE,), source_type=SourceTypeEnum.INHERIT, inherit_from="rib1"),
+        RibTemplate(rib_name="rib2", operation_template=(RibOperation.NONE,), source_type=SourceTypeEnum.INHERIT, inherit_from="rib2"),
+        RibTemplate(rib_name="rib3", operation_template=(RibOperation.NONE,), source_type=SourceTypeEnum.INHERIT, inherit_from="rib3"),
+        RibTemplate(rib_name="rib4", operation_template=(RibOperation.NONE,), source_type=SourceTypeEnum.INHERIT, inherit_from="rib4"),
+    ]
+
 # 中心对称 + RIB3-RIB4连续
 # Symmetry1 +  Continuity2： rib1 -> inherit_from="rib1" -> RibOperation.None, RibOperation.None,
 # Symmetry1 +  Continuity2： rib2 -> inherit_from="rib2" -> RibOperation.None, RibOperation.None,

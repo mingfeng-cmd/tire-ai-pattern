@@ -78,6 +78,7 @@ class ContinuityModeName(str, Enum):
     CONTINUITY_1 = "continuity_1"      # RIB2-3中间全连续
     CONTINUITY_2 = "continuity_2"      # RIB3-4中间全连续
     CONTINUITY_3 = "continuity_3"      # 4rib，RIB2-3中间全连续
+    CONTINUITY_4 = "continuity_4"      # 4rib，无连续性
 
 class RibOperation(str, Enum):
     """RIB原子操作枚举"""
