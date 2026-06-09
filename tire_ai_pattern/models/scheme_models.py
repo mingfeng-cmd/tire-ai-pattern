@@ -157,7 +157,7 @@ class Symmetry3(StitchingTemplate):
     rib_template_list: List[RibTemplate] = [
         RibTemplate(rib_name="rib1", operation_template=(RibOperation.NONE,), region=RegionEnum.SIDE),
         RibTemplate(rib_name="rib2", operation_template=(RibOperation.NONE,), region=RegionEnum.CENTER),
-        RibTemplate(rib_name="rib3", operation_template=(RibOperation.LEFT_FLIP_LR,), region=RegionEnum.CENTER),
+        RibTemplate(rib_name="rib3", operation_template=(RibOperation.OFFSET_VERTICAL_HALF,), region=RegionEnum.CENTER),
         RibTemplate(rib_name="rib4", operation_template=(RibOperation.FLIP_LR, RibOperation.OFFSET_VERTICAL_HALF),
                     region=RegionEnum.CENTER,
                     source_type=SourceTypeEnum.INHERIT, inherit_from="rib2"),
