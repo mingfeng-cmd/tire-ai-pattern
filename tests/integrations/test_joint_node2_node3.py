@@ -198,11 +198,11 @@ RULES_CONFIG_RULE4_5RIB = [
         description="RIB 节距与尺寸配置",
         rib_number=5,
         rib_sizes=[
-            RibSizeItem(rib_name="rib1", num_pitchs=5, rib_width=400, rib_height=640),
-            RibSizeItem(rib_name="rib2", num_pitchs=5, rib_width=200, rib_height=640),
-            RibSizeItem(rib_name="rib3", num_pitchs=5, rib_width=200, rib_height=640),
-            RibSizeItem(rib_name="rib4", num_pitchs=5, rib_width=200, rib_height=640),
-            RibSizeItem(rib_name="rib5", num_pitchs=5, rib_width=400, rib_height=640),
+            RibSizeItem(rib_name="rib1", num_pitchs=5, rib_width=160, rib_height=640),
+            RibSizeItem(rib_name="rib2", num_pitchs=5, rib_width=80, rib_height=640),
+            RibSizeItem(rib_name="rib3", num_pitchs=5, rib_width=80, rib_height=640),
+            RibSizeItem(rib_name="rib4", num_pitchs=5, rib_width=80, rib_height=640),
+            RibSizeItem(rib_name="rib5", num_pitchs=5, rib_width=160, rib_height=640),
         ],
     ),
     Rule101Config(
@@ -233,10 +233,10 @@ RULES_CONFIG_RULE4_4RIB = [
         description="RIB 节距与尺寸配置",
         rib_number=4,
         rib_sizes=[
-            RibSizeItem(rib_name="rib1", num_pitchs=5, rib_width=400, rib_height=640),
-            RibSizeItem(rib_name="rib2", num_pitchs=5, rib_width=200, rib_height=640),
-            RibSizeItem(rib_name="rib3", num_pitchs=5, rib_width=200, rib_height=640),
-            RibSizeItem(rib_name="rib4", num_pitchs=5, rib_width=400, rib_height=640),
+            RibSizeItem(rib_name="rib1", num_pitchs=5, rib_width=160, rib_height=640),
+            RibSizeItem(rib_name="rib2", num_pitchs=5, rib_width=80, rib_height=640),
+            RibSizeItem(rib_name="rib3", num_pitchs=5, rib_width=80, rib_height=640),
+            RibSizeItem(rib_name="rib4", num_pitchs=5, rib_width=160, rib_height=640),
         ],
     ),
     Rule101Config(
@@ -977,7 +977,7 @@ class TestJointNode2Node3:
         self._assert_before_images_filled(lineage)
         self._assert_after_images_filled(lineage, expected_prefix)
 
-        expected_width = 400 + 200 + 200 + 200 + 400 + 20 * 4
+        expected_width = 160 + 80 + 80 + 80 + 160 + 20 * 4
         expected_height = 640
         rst = base64_to_ndarray(result.image_base64)
         assert rst.shape == (expected_height, expected_width, 3)
@@ -1009,7 +1009,7 @@ class TestJointNode2Node3:
         self._assert_before_images_filled(lineage)
         self._assert_after_images_filled(lineage, expected_prefix)
 
-        expected_width = 400 + 200 + 200 + 400 + 20 * 3
+        expected_width = 160 + 80 + 80 + 160 + 20 * 3
         expected_height = 640
         rst = base64_to_ndarray(result.image_base64)
         assert rst.shape == (expected_height, expected_width, 3)
