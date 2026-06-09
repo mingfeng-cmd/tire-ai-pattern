@@ -45,6 +45,15 @@ class TestImageOperation(unittest.TestCase):
         expected = cv2.rotate(self.test_image, cv2.ROTATE_180)
         np.testing.assert_array_equal(result, expected)
 
+    def test_apply_single_rib_operation_offset_vertical_half(self):
+        """测试纵向半高错位操作。"""
+        image = np.arange(6, dtype=np.uint8).reshape(6, 1, 1)
+
+        result = apply_single_rib_operation(image, RibOperation.OFFSET_VERTICAL_HALF)
+        expected = np.roll(image, shift=3, axis=0)
+
+        np.testing.assert_array_equal(result, expected)
+
     def test_apply_single_rib_operation_resize_horizontal_2x(self):
         """测试RESIZE_HORIZONTAL_2X操作"""
         result = apply_single_rib_operation(self.test_image, RibOperation.RESIZE_HORIZONTAL_2X)

@@ -60,10 +60,12 @@ class StitchingSchemeName(str, Enum):
     SYMMETRY_0 = "symmetry_0"          # 无对称
     SYMMETRY_1 = "symmetry_1"          # 中心旋转180°对称
     SYMMETRY_2 = "symmetry_2"          # 左右镜像对称
+    SYMMETRY_3 = "symmetry_3"          # 中心线镜像对称可错位
     
     SYMMETRY_4 = "symmetry_4"          # 无对称
     SYMMETRY_5 = "symmetry_5"          # 中心旋转180°对称
     SYMMETRY_6 = "symmetry_6"          # 左右镜像对称
+    SYMMETRY_7 = "symmetry_7"          # 中心线镜像对称可错位
 
 
     _CONCATENATE_0 = "_concatenate_0"  # 内部：两张图拼接（单下划线避免名称修饰）
@@ -84,6 +86,7 @@ class RibOperation(str, Enum):
     FLIP = "flip"                           # 旋转180度
     LEFT_FLIP_LR = "left_fliplr"            # 左半左右对称覆盖右侧
     LEFT_FLIP = "left_flip"                 # 左半旋转180覆盖右侧
+    OFFSET_VERTICAL_HALF = "offset_vertical_half"  # 纵向错位半高度
     RESIZE_HORIZONTAL_2X = "resize_horizontal_2x"      # 横向拉伸2倍
     LEFT = "left"                           # 截取左边
     RIGHT = "right"                         # 截取右边

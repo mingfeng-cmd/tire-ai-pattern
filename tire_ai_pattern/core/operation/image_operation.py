@@ -43,6 +43,12 @@ def apply_single_rib_operation(image: np.ndarray, operation: RibOperation) -> np
             # 旋转180度
             return cv2.rotate(image, cv2.ROTATE_180)
 
+        elif operation == RibOperation.OFFSET_VERTICAL_HALF:
+            # 纵向错位半高度
+            if h < 2:
+                return image.copy()
+            return np.roll(image, shift=h // 2, axis=0)
+
         elif operation == RibOperation.LEFT_FLIP_LR:
             # 左半左右对称覆盖右侧
             if w < 2:

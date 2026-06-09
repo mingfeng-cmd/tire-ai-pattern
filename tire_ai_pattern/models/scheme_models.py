@@ -21,7 +21,7 @@ from typing import Optional, List, Tuple, Union
 from pydantic import BaseModel, Field, ConfigDict, model_validator
 
 from .enums import ContinuityModeName, RegionEnum, SourceTypeEnum, StitchingSchemeName, RibOperation
-from .rule_models import Rule1Config, Rule2Config, Rule3Config
+from .rule_models import Rule1Config, Rule2Config, Rule3Config, Rule4Config
 from .template_registry import register_stitching_template
 
 
@@ -146,6 +146,28 @@ class Symmetry2(StitchingTemplate):
 
 
 @register_stitching_template
+class Symmetry3(StitchingTemplate):
+    """拼接模板：symmetry_3 - 5个RIB，中心线镜像对称可错位"""
+
+    name: StitchingSchemeName = StitchingSchemeName.SYMMETRY_3
+    description: str = "5个RIB，中心线镜像对称可错位"
+    rib_number: int = 5
+    mode: str = "symmetry"
+    matching_rule_names: Tuple[str, ...] = (Rule4Config().name,)
+    rib_template_list: List[RibTemplate] = [
+        RibTemplate(rib_name="rib1", operation_template=(RibOperation.NONE,), region=RegionEnum.SIDE),
+        RibTemplate(rib_name="rib2", operation_template=(RibOperation.NONE,), region=RegionEnum.CENTER),
+        RibTemplate(rib_name="rib3", operation_template=(RibOperation.LEFT_FLIP_LR,), region=RegionEnum.CENTER),
+        RibTemplate(rib_name="rib4", operation_template=(RibOperation.FLIP_LR, RibOperation.OFFSET_VERTICAL_HALF),
+                    region=RegionEnum.CENTER,
+                    source_type=SourceTypeEnum.INHERIT, inherit_from="rib2"),
+        RibTemplate(rib_name="rib5", operation_template=(RibOperation.FLIP_LR, RibOperation.OFFSET_VERTICAL_HALF),
+                    region=RegionEnum.SIDE,
+                    source_type=SourceTypeEnum.INHERIT, inherit_from="rib1"),
+    ]
+
+
+@register_stitching_template
 class Symmetry4(StitchingTemplate):
     """拼接模板：symmetry_4 - 4个RIB，无对称"""
 
@@ -196,6 +218,27 @@ class Symmetry6(StitchingTemplate):
         RibTemplate(rib_name="rib3", operation_template=(RibOperation.FLIP_LR,), region=RegionEnum.CENTER,
                     source_type=SourceTypeEnum.INHERIT, inherit_from="rib2"),
         RibTemplate(rib_name="rib4", operation_template=(RibOperation.FLIP_LR,), region=RegionEnum.SIDE,
+                    source_type=SourceTypeEnum.INHERIT, inherit_from="rib1"),
+    ]
+
+
+@register_stitching_template
+class Symmetry7(StitchingTemplate):
+    """拼接模板：symmetry_7 - 4个RIB，中心线镜像对称可错位"""
+
+    name: StitchingSchemeName = StitchingSchemeName.SYMMETRY_7
+    description: str = "4个RIB，中心线镜像对称可错位"
+    rib_number: int = 4
+    mode: str = "symmetry"
+    matching_rule_names: Tuple[str, ...] = (Rule4Config().name,)
+    rib_template_list: List[RibTemplate] = [
+        RibTemplate(rib_name="rib1", operation_template=(RibOperation.NONE,), region=RegionEnum.SIDE),
+        RibTemplate(rib_name="rib2", operation_template=(RibOperation.NONE,), region=RegionEnum.CENTER),
+        RibTemplate(rib_name="rib3", operation_template=(RibOperation.FLIP_LR, RibOperation.OFFSET_VERTICAL_HALF),
+                    region=RegionEnum.CENTER,
+                    source_type=SourceTypeEnum.INHERIT, inherit_from="rib2"),
+        RibTemplate(rib_name="rib4", operation_template=(RibOperation.FLIP_LR, RibOperation.OFFSET_VERTICAL_HALF),
+                    region=RegionEnum.SIDE,
                     source_type=SourceTypeEnum.INHERIT, inherit_from="rib1"),
     ]
 
