@@ -192,7 +192,7 @@ def test_rule4_template_adds_vertical_offset_to_distinguish_from_rule3():
     rule4_4rib_operations = [rib.operation_template for rib in Symmetry7().rib_template_list]
 
     assert rule4_5rib_operations != rule3_5rib_operations
-    assert rule4_5rib_operations[2] == (RibOperation.OFFSET_VERTICAL_HALF,)
+    assert rule4_5rib_operations[2] == (RibOperation.LEFT_FLIP_LR_OFFSET_RIGHT_HALF,)
     assert RibOperation.OFFSET_VERTICAL_HALF in rule4_5rib_operations[3]
     assert RibOperation.OFFSET_VERTICAL_HALF in rule4_5rib_operations[4]
     assert rule4_4rib_operations != rule3_4rib_operations

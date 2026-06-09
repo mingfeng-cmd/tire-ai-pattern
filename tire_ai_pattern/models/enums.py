@@ -87,6 +87,7 @@ class RibOperation(str, Enum):
     FLIP = "flip"                           # 旋转180度
     LEFT_FLIP_LR = "left_fliplr"            # 左半左右对称覆盖右侧
     LEFT_FLIP = "left_flip"                 # 左半旋转180覆盖右侧
+    LEFT_FLIP_LR_OFFSET_RIGHT_HALF = "left_fliplr_offset_right_half"  # 左半镜像到右侧后仅右侧纵向错位
     OFFSET_VERTICAL_HALF = "offset_vertical_half"  # 纵向错位半高度
     RESIZE_HORIZONTAL_2X = "resize_horizontal_2x"      # 横向拉伸2倍
     LEFT = "left"                           # 截取左边

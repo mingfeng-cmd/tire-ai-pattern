@@ -54,6 +54,26 @@ class TestImageOperation(unittest.TestCase):
 
         np.testing.assert_array_equal(result, expected)
 
+    def test_apply_single_rib_operation_left_flip_lr_offset_right_half(self):
+        """测试左半镜像到右侧后仅右侧纵向错位。"""
+        left_half = np.array(
+            [
+                [[1], [2]],
+                [[3], [4]],
+                [[5], [6]],
+                [[7], [8]],
+            ],
+            dtype=np.uint8,
+        )
+        right_half = np.zeros((4, 2, 1), dtype=np.uint8)
+        image = np.concatenate([left_half, right_half], axis=1)
+
+        result = apply_single_rib_operation(image, RibOperation.LEFT_FLIP_LR_OFFSET_RIGHT_HALF)
+        expected_right = np.roll(cv2.flip(left_half, 1)[:, :, np.newaxis], shift=2, axis=0)
+
+        np.testing.assert_array_equal(result[:, :2], left_half)
+        np.testing.assert_array_equal(result[:, 2:], expected_right)
+
     def test_apply_single_rib_operation_resize_horizontal_2x(self):
         """测试RESIZE_HORIZONTAL_2X操作"""
         result = apply_single_rib_operation(self.test_image, RibOperation.RESIZE_HORIZONTAL_2X)

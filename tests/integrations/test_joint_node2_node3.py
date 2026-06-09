@@ -252,7 +252,7 @@ RULES_CONFIG_RULE4_4RIB = [
         max_score=6,
         continuity_ratio_upper=1.0,
         continuity_ratio_lower=0.0,
-        continuity_mode_list=[ContinuityModeName.CONTINUITY_3],
+        continuity_mode_list=[ContinuityModeName.CONTINUITY_4],
     ),
     Rule102Config(
         description="透明装饰占位配置",
@@ -968,7 +968,7 @@ class TestJointNode2Node3:
         assert lineage.stitching_scheme.stitching_scheme_abstract.name == StitchingSchemeName.SYMMETRY_3
         ribs = lineage.stitching_scheme.ribs_scheme_implementation
         assert [rib.rib_name for rib in ribs] == ["rib1", "rib2", "rib3", "rib4", "rib5"]
-        assert ribs[2].rib_operation == (RibOperation.OFFSET_VERTICAL_HALF,)
+        assert ribs[2].rib_operation == (RibOperation.LEFT_FLIP_LR_OFFSET_RIGHT_HALF,)
         assert ribs[3].rib_same_as == "rib2"
         assert ribs[3].rib_operation == (RibOperation.FLIP_LR, RibOperation.OFFSET_VERTICAL_HALF)
         assert ribs[4].rib_same_as == "rib1"
@@ -1002,7 +1002,7 @@ class TestJointNode2Node3:
         ribs = lineage.stitching_scheme.ribs_scheme_implementation
         assert [rib.rib_name for rib in ribs] == ["rib1", "rib2", "rib3", "rib4"]
         assert ribs[2].rib_same_as == "rib2"
-        assert RibOperation.RIGHT in ribs[2].rib_operation
+        assert ribs[2].rib_operation == (RibOperation.FLIP_LR, RibOperation.OFFSET_VERTICAL_HALF)
         assert ribs[3].rib_same_as == "rib1"
         assert ribs[3].rib_operation == (RibOperation.FLIP_LR, RibOperation.OFFSET_VERTICAL_HALF)
 
