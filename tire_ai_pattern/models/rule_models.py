@@ -197,10 +197,11 @@ class Rule3Config(BaseRuleConfig):
     rule_type: RuleTypeEnum = RuleTypeEnum.BIG_IMAGE
 
 
-# class Rule4Config(BaseRuleConfig):
-#     """Rule4：未实现"""
-#     description: str = "未实现"
-#     # max_score 继承 BaseRuleConfig，默认 None
+class Rule4Config(BaseRuleConfig):
+    """Rule4：中心线镜像对称可错位"""
+    description: str = "中心线镜像对称可错位，错位效果一般左右侧横沟为均分关系"
+    max_score: int = 10
+    rule_type: RuleTypeEnum = RuleTypeEnum.BIG_IMAGE
 
 
 # class Rule5Config(BaseRuleConfig):
@@ -225,10 +226,10 @@ class Rule3Feature(BaseRuleFeature):
     is_active: bool = Field(description="是否生效")
 
 
-# @register_rule_feature
-# class Rule4Feature(BaseRuleFeature):
-#     """Rule4特征：未实现"""
-#     pass
+@register_rule_feature
+class Rule4Feature(BaseRuleFeature):
+    """Rule4特征：中心线镜像对称可错位"""
+    is_active: bool = Field(description="是否生效")
 
 
 # @register_rule_feature
@@ -255,10 +256,10 @@ class Rule3Score(BaseRuleScore):
     pass
 
 
-# @register_rule_score
-# class Rule4Score(BaseRuleScore):
-#     """Rule4评分：未实现"""
-#     pass
+@register_rule_score
+class Rule4Score(BaseRuleScore):
+    """Rule4评分"""
+    pass
 
 
 # @register_rule_score

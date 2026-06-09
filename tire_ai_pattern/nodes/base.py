@@ -15,7 +15,7 @@ from tire_ai_pattern.models.rule_models import (
     Rule1Config,
     Rule2Config,
     Rule3Config,
-    # Rule4Config,  # 已注释
+    Rule4Config,
     # Rule5Config,  # 已注释
     Rule6AConfig,
     Rule6Config,
@@ -46,7 +46,7 @@ ALL_RULE_CONFIG_TYPES: list[type[BaseRuleConfig]] = [
     Rule1Config,
     Rule2Config,
     Rule3Config,
-    # Rule4Config,  # 已注释
+    Rule4Config,
     # Rule5Config,  # 已注释
     Rule6AConfig,
     Rule6Config,
@@ -100,7 +100,7 @@ STITCH_SCHEME_GENERATOR_CONFIGS: list[type[BaseRuleConfig]] = [
     Rule1Config,
     Rule2Config,
     Rule3Config,
-    # Rule4Config,  # 已注释
+    Rule4Config,
     # Rule5Config,  # 已注释
     Rule6AConfig,
     Rule7Config,

@@ -7,7 +7,7 @@ from tire_ai_pattern.models.rule_models import (
     Rule1Config,
     Rule2Config,
     Rule3Config,
-    # Rule4Config,  # 已注释
+    Rule4Config,
     # Rule5Config,  # 已注释
     Rule6AConfig,
     Rule6Config,
@@ -40,7 +40,7 @@ ALL_RULE_CONFIGS = [
     Rule1Config,
     Rule2Config,
     Rule3Config,
-    # Rule4Config,  # 已注释
+    Rule4Config,
     # Rule5Config,  # 已注释
     Rule6Config,
     Rule6AConfig,

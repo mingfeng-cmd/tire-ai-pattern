@@ -7,7 +7,7 @@ _EXECUTOR_MODULES = {
     "Rule1Executor": "tire_ai_pattern.rules.executors.rule1",
     "Rule2Executor": "tire_ai_pattern.rules.executors.rule2",
     "Rule3Executor": "tire_ai_pattern.rules.executors.rule3",
-    # "Rule4Executor": "tire_ai_pattern.rules.executors.rule4",  # 已注释
+    "Rule4Executor": "tire_ai_pattern.rules.executors.rule4",
     # "Rule5Executor": "tire_ai_pattern.rules.executors.rule5",  # 已注释
     "Rule6Executor": "tire_ai_pattern.rules.executors.rule6",
     "Rule6AExecutor": "tire_ai_pattern.rules.executors.rule6a",

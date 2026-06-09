@@ -60,10 +60,12 @@ class StitchingSchemeName(str, Enum):
     SYMMETRY_0 = "symmetry_0"          # 无对称
     SYMMETRY_1 = "symmetry_1"          # 中心旋转180°对称
     SYMMETRY_2 = "symmetry_2"          # 左右镜像对称
+    SYMMETRY_3 = "symmetry_3"          # 中心线镜像对称可错位
     
     SYMMETRY_4 = "symmetry_4"          # 无对称
     SYMMETRY_5 = "symmetry_5"          # 中心旋转180°对称
     SYMMETRY_6 = "symmetry_6"          # 左右镜像对称
+    SYMMETRY_7 = "symmetry_7"          # 中心线镜像对称可错位
 
 
     _CONCATENATE_0 = "_concatenate_0"  # 内部：两张图拼接（单下划线避免名称修饰）
@@ -76,6 +78,7 @@ class ContinuityModeName(str, Enum):
     CONTINUITY_1 = "continuity_1"      # RIB2-3中间全连续
     CONTINUITY_2 = "continuity_2"      # RIB3-4中间全连续
     CONTINUITY_3 = "continuity_3"      # 4rib，RIB2-3中间全连续
+    CONTINUITY_4 = "continuity_4"      # 4rib，无连续性
 
 class RibOperation(str, Enum):
     """RIB原子操作枚举"""
@@ -84,6 +87,8 @@ class RibOperation(str, Enum):
     FLIP = "flip"                           # 旋转180度
     LEFT_FLIP_LR = "left_fliplr"            # 左半左右对称覆盖右侧
     LEFT_FLIP = "left_flip"                 # 左半旋转180覆盖右侧
+    LEFT_FLIP_LR_OFFSET_RIGHT_HALF = "left_fliplr_offset_right_half"  # 左半镜像到右侧后仅右侧纵向错位
+    OFFSET_VERTICAL_HALF = "offset_vertical_half"  # 纵向错位半高度
     RESIZE_HORIZONTAL_2X = "resize_horizontal_2x"      # 横向拉伸2倍
     LEFT = "left"                           # 截取左边
     RIGHT = "right"                         # 截取右边

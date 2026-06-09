@@ -27,6 +27,7 @@ from tire_ai_pattern.models.enums import (
     ImageModeEnum,
     LevelEnum,
     RegionEnum,
+    RibOperation,
     SourceTypeEnum,
     StitchingSchemeName,
 )
@@ -52,6 +53,7 @@ from tire_ai_pattern.models.rule_models import (
     Rule12Config,
     Rule16Config,
     Rule17Config,
+    Rule4Config,
 )
 from tire_ai_pattern.nodes.big_image_stitcher import stitch_big_image
 from tire_ai_pattern.nodes.stitch_scheme_generator import generate_stitch_scheme
@@ -187,6 +189,81 @@ RULES_CONFIG_CASE2 = [
         description="边缘RIB上的横沟或横向钢片可任意组合连续性",
         max_score=6,
         continuity_mode_list=[ContinuityModeName.CONTINUITY_0],
+    ),
+]
+
+RULES_CONFIG_RULE4_5RIB = [
+    Rule4Config(description="中心线镜像对称可错位", max_score=10),
+    Rule100Config(
+        description="RIB 节距与尺寸配置",
+        rib_number=5,
+        rib_sizes=[
+            RibSizeItem(rib_name="rib1", num_pitchs=5, rib_width=160, rib_height=640),
+            RibSizeItem(rib_name="rib2", num_pitchs=5, rib_width=80, rib_height=640),
+            RibSizeItem(rib_name="rib3", num_pitchs=5, rib_width=80, rib_height=640),
+            RibSizeItem(rib_name="rib4", num_pitchs=5, rib_width=80, rib_height=640),
+            RibSizeItem(rib_name="rib5", num_pitchs=5, rib_width=160, rib_height=640),
+        ],
+    ),
+    Rule101Config(
+        description="主沟尺寸配置",
+        groove_sizes=[
+            GrooveSizeItem(groove_width=20, groove_height=640),
+            GrooveSizeItem(groove_width=20, groove_height=640),
+            GrooveSizeItem(groove_width=20, groove_height=640),
+            GrooveSizeItem(groove_width=20, groove_height=640),
+        ],
+    ),
+    Rule102Config(
+        description="透明装饰占位配置",
+        decorations=[
+            DecorationItem(
+                position="left",
+                decoration_width=1,
+                decoration_height=640,
+                decoration_opacity=0,
+            )
+        ],
+    ),
+]
+
+RULES_CONFIG_RULE4_4RIB = [
+    Rule4Config(description="中心线镜像对称可错位", max_score=10),
+    Rule100Config(
+        description="RIB 节距与尺寸配置",
+        rib_number=4,
+        rib_sizes=[
+            RibSizeItem(rib_name="rib1", num_pitchs=5, rib_width=160, rib_height=640),
+            RibSizeItem(rib_name="rib2", num_pitchs=5, rib_width=80, rib_height=640),
+            RibSizeItem(rib_name="rib3", num_pitchs=5, rib_width=80, rib_height=640),
+            RibSizeItem(rib_name="rib4", num_pitchs=5, rib_width=160, rib_height=640),
+        ],
+    ),
+    Rule101Config(
+        description="主沟尺寸配置",
+        groove_sizes=[
+            GrooveSizeItem(groove_width=20, groove_height=640),
+            GrooveSizeItem(groove_width=20, groove_height=640),
+            GrooveSizeItem(groove_width=20, groove_height=640),
+        ],
+    ),
+    Rule12Config(
+        description="4RIB 连续性占位配置",
+        max_score=6,
+        continuity_ratio_upper=1.0,
+        continuity_ratio_lower=0.0,
+        continuity_mode_list=[ContinuityModeName.CONTINUITY_4],
+    ),
+    Rule102Config(
+        description="透明装饰占位配置",
+        decorations=[
+            DecorationItem(
+                position="left",
+                decoration_width=1,
+                decoration_height=640,
+                decoration_opacity=0,
+            )
+        ],
     ),
 ]
 
@@ -875,6 +952,72 @@ class TestJointNode2Node3:
             "rules_config": RULES_CONFIG_V1,
             "big_image": result,
         })
+
+    def test_joint_rule4_symmetry3_real_images(self):
+        """用真实 RIB 图片验证 Node2 + Node3 可生成 5RIB Rule4 错位镜像模板。"""
+        expected_prefix = "data:image/"
+        small_images = [
+            make_real_small_image(RegionEnum.SIDE, "rib1.png", 5),
+            make_real_small_image(RegionEnum.CENTER, "rib2.png", 5),
+            make_real_small_image(RegionEnum.CENTER, "rib3.png", 5),
+        ]
+
+        result = run_joint_pipeline(small_images, RULES_CONFIG_RULE4_5RIB, scheme_rank=1)
+        lineage: ImageLineage = result.lineage
+
+        assert lineage.stitching_scheme.stitching_scheme_abstract.name == StitchingSchemeName.SYMMETRY_3
+        ribs = lineage.stitching_scheme.ribs_scheme_implementation
+        assert [rib.rib_name for rib in ribs] == ["rib1", "rib2", "rib3", "rib4", "rib5"]
+        assert ribs[2].rib_operation == (RibOperation.LEFT_FLIP_LR_OFFSET_RIGHT_HALF,)
+        assert ribs[3].rib_same_as == "rib2"
+        assert ribs[3].rib_operation == (RibOperation.FLIP_LR, RibOperation.OFFSET_VERTICAL_HALF)
+        assert ribs[4].rib_same_as == "rib1"
+        assert ribs[4].rib_operation == (RibOperation.FLIP_LR, RibOperation.OFFSET_VERTICAL_HALF)
+
+        self._assert_before_images_filled(lineage)
+        self._assert_after_images_filled(lineage, expected_prefix)
+
+        expected_width = 160 + 80 + 80 + 80 + 160 + 20 * 4
+        expected_height = 640
+        rst = base64_to_ndarray(result.image_base64)
+        assert rst.shape == (expected_height, expected_width, 3)
+
+        _export_case_results(
+            "case_rule4_symmetry3_5rib", small_images, RULES_CONFIG_RULE4_5RIB, 1,
+            result, expected_width, expected_height,
+        )
+
+    def test_joint_rule4_symmetry7_real_images(self):
+        """用真实 RIB 图片验证 Node2 + Node3 可生成 4RIB Rule4 错位镜像模板。"""
+        expected_prefix = "data:image/"
+        small_images = [
+            make_real_small_image(RegionEnum.SIDE, "rib1.png", 5),
+            make_real_small_image(RegionEnum.CENTER, "rib2.png", 5),
+        ]
+
+        result = run_joint_pipeline(small_images, RULES_CONFIG_RULE4_4RIB, scheme_rank=1)
+        lineage: ImageLineage = result.lineage
+
+        assert lineage.stitching_scheme.stitching_scheme_abstract.name == StitchingSchemeName.SYMMETRY_7
+        ribs = lineage.stitching_scheme.ribs_scheme_implementation
+        assert [rib.rib_name for rib in ribs] == ["rib1", "rib2", "rib3", "rib4"]
+        assert ribs[2].rib_same_as == "rib2"
+        assert ribs[2].rib_operation == (RibOperation.FLIP_LR, RibOperation.OFFSET_VERTICAL_HALF)
+        assert ribs[3].rib_same_as == "rib1"
+        assert ribs[3].rib_operation == (RibOperation.FLIP_LR, RibOperation.OFFSET_VERTICAL_HALF)
+
+        self._assert_before_images_filled(lineage)
+        self._assert_after_images_filled(lineage, expected_prefix)
+
+        expected_width = 160 + 80 + 80 + 160 + 20 * 3
+        expected_height = 640
+        rst = base64_to_ndarray(result.image_base64)
+        assert rst.shape == (expected_height, expected_width, 3)
+
+        _export_case_results(
+            "case_rule4_symmetry7_4rib", small_images, RULES_CONFIG_RULE4_4RIB, 1,
+            result, expected_width, expected_height,
+        )
 
     # ---------- 共享断言辅助 ----------
 

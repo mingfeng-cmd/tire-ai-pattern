@@ -33,6 +33,7 @@ from tire_ai_pattern.models.rule_models import (
     Rule16Config,
     Rule2Config,
     Rule3Config,
+    Rule4Config,
     Rule100Config,
     Rule101Config,
     Rule102Config,
@@ -45,6 +46,10 @@ from tire_ai_pattern.models.scheme_models import (
     StitchingTemplate,
     Symmetry0,
     Symmetry1,
+    Symmetry2,
+    Symmetry3,
+    Symmetry6,
+    Symmetry7,
 )
 from tire_ai_pattern.models.template_registry import get_stitching_templates
 from tire_ai_pattern.nodes.base import STITCH_SCHEME_GENERATOR_CONFIGS, select_node_configs
@@ -140,32 +145,36 @@ def test_matching_rule_names_are_derived_from_rule_config_types():
     expected_symmetry0_rule_names = (Rule1Config().name,)
     expected_symmetry1_rule_names = (Rule2Config().name,)
     expected_rule3_template_names = (Rule3Config().name,)
+    expected_symmetry3_rule_names = (Rule4Config().name,)
 
     assert Symmetry0().matching_rule_names == expected_symmetry0_rule_names
     assert Symmetry1().matching_rule_names == expected_symmetry1_rule_names
     assert Rule3Template().matching_rule_names == expected_rule3_template_names
+    assert Symmetry3().matching_rule_names == expected_symmetry3_rule_names
 
 
 def test_filter_templates_filters_symmetry_by_enabled_rules():
     """规则配置齐全时保留全部对称性模板，缺少配置时过滤对应模板。"""
 
     all_symmetry_templates, continuity_templates = _filter_templates(
-        [Symmetry0(), Symmetry1(), Continuity0(), Continuity1(), Continuity2(), Rule3Template()],
+        [Symmetry0(), Symmetry1(), Symmetry3(), Continuity0(), Continuity1(), Continuity2(), Rule3Template()],
         target_rib_number=5,
-        configs=[Rule1Config(), Rule2Config(), Rule3Config()],
+        configs=[Rule1Config(), Rule2Config(), Rule3Config(), Rule4Config()],
     )
     missing_rule2_symmetry_templates, _ = _filter_templates(
-        [Symmetry0(), Symmetry1(), Continuity0(), Continuity1(), Continuity2(), Rule3Template()],
+        [Symmetry0(), Symmetry1(), Symmetry3(), Continuity0(), Continuity1(), Continuity2(), Rule3Template()],
         target_rib_number=5,
-        configs=[Rule1Config(), Rule3Config()],
+        configs=[Rule1Config(), Rule3Config(), Rule4Config()],
     )
 
     expected_all_symmetry_template_names = [
         StitchingSchemeName.SYMMETRY_0,
         StitchingSchemeName.SYMMETRY_1,
+        StitchingSchemeName.SYMMETRY_3,
     ]
     expected_missing_rule2_symmetry_template_names = [
         StitchingSchemeName.SYMMETRY_0,
+        StitchingSchemeName.SYMMETRY_3,
     ]
     expected_continuity_template_names = [
         ContinuityModeName.CONTINUITY_0,
@@ -174,6 +183,21 @@ def test_filter_templates_filters_symmetry_by_enabled_rules():
     assert [template.name for template in all_symmetry_templates] == expected_all_symmetry_template_names
     assert [template.name for template in missing_rule2_symmetry_templates] == expected_missing_rule2_symmetry_template_names
     assert [template.name for template in continuity_templates] == expected_continuity_template_names
+
+
+def test_rule4_template_adds_vertical_offset_to_distinguish_from_rule3():
+    rule3_5rib_operations = [rib.operation_template for rib in Symmetry2().rib_template_list]
+    rule4_5rib_operations = [rib.operation_template for rib in Symmetry3().rib_template_list]
+    rule3_4rib_operations = [rib.operation_template for rib in Symmetry6().rib_template_list]
+    rule4_4rib_operations = [rib.operation_template for rib in Symmetry7().rib_template_list]
+
+    assert rule4_5rib_operations != rule3_5rib_operations
+    assert rule4_5rib_operations[2] == (RibOperation.LEFT_FLIP_LR_OFFSET_RIGHT_HALF,)
+    assert RibOperation.OFFSET_VERTICAL_HALF in rule4_5rib_operations[3]
+    assert RibOperation.OFFSET_VERTICAL_HALF in rule4_5rib_operations[4]
+    assert rule4_4rib_operations != rule3_4rib_operations
+    assert RibOperation.OFFSET_VERTICAL_HALF in rule4_4rib_operations[2]
+    assert RibOperation.OFFSET_VERTICAL_HALF in rule4_4rib_operations[3]
 
 
 def test_filter_templates_uses_user_continuity_mode_names():
